@@ -28,9 +28,10 @@ use warnings;
 use Getopt::Std;
 use XML::LibXML;
 
-getopt('f:', \my %opts);
+getopts('f:u', \my %opts);
 
 my $file = $opts{f};
+my $uniq = 0;
 
 my $ver = qx{pdftohtml -v 2>&1};
 if($ver !~ /pdftohtml version/) {
@@ -45,6 +46,9 @@ if (not defined $file) {
   warn("File $file not found");
   exit 4;
 }
+if(defined $opts{u}) {
+  $uniq = 1;
+}
 
 my $xml;
 open (my $pipe, "-|", "pdftohtml -xml -stdout \"$file\"") or die "error opening pipe: $!";
@@ -57,7 +61,12 @@ close ($pipe) or die;
 my $dom = XML::LibXML->load_xml(string => $xml);
 my @uris;
 foreach my $node ($dom->findnodes('//a')) {
-    push(@uris, $node->getAttribute('href'));
+  push(@uris, $node->getAttribute('href'));
 }
-my @uniq_uris = do { my %seen; grep { !$seen{$_}++ } @uris };
-print @uniq_uris;
+
+if($uniq) {
+  my @uniq_uris = do { my %seen; grep { !$seen{$_}++ } @uris };
+  print @uniq_uris;
+} else {
+  print @uris;
+}
