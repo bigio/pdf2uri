@@ -61,7 +61,7 @@ close ($pipe) or die;
 my $dom = XML::LibXML->load_xml(string => $xml);
 my @uris;
 foreach my $node ($dom->findnodes('//a')) {
-  push(@uris, $node->getAttribute('href'));
+  push(@uris, $node->getAttribute('href') . "\n");
 }
 
 if($uniq) {
