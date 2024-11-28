@@ -31,6 +31,13 @@ use XML::LibXML;
 getopt('f:', \my %opts);
 
 my $file = $opts{f};
+
+my $ver = qx{pdftohtml -v 2>&1};
+if($ver !~ /pdftohtml version/) {
+  warn "pdftohtml not found or incompatible version";
+  exit 3;
+}
+
 if (not defined $file) {
   warn "[-f] parameter is required";
   exit 1;
