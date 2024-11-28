@@ -28,9 +28,10 @@ use warnings;
 use Getopt::Std;
 use XML::LibXML;
 
-getopts('f:u', \my %opts);
+getopts('f:hu', \my %opts);
 
 my $file = $opts{f};
+my $html = 0;
 my $uniq = 0;
 
 my $ver = qx{pdftohtml -v 2>&1};
@@ -45,6 +46,9 @@ if (not defined $file) {
 } elsif (not -f $file) {
   warn("File $file not found");
   exit 4;
+}
+if(defined $opts{h}) {
+  $html = 1;
 }
 if(defined $opts{u}) {
   $uniq = 1;
@@ -66,7 +70,15 @@ foreach my $node ($dom->findnodes('//a')) {
 
 if($uniq) {
   my @uniq_uris = do { my %seen; grep { !$seen{$_}++ } @uris };
-  print @uniq_uris;
+  if($html) {
+    map { chomp; print "<a href=\"" . $_ . "\">" . $_ . "</a>" } @uniq_uris;
+  } else {
+    print @uniq_uris;
+  }
 } else {
-  print @uris;
+  if($html) {
+    map { chomp; print "<a href=\"" . $_ . "\">" . $_ . "</a>" } @uris;
+  } else {
+    print @uris;
+  }
 }
